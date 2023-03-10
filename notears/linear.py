@@ -13,7 +13,7 @@ def notears_linear(X, lambda1, loss_type, max_iter=100, h_tol=1e-8, rho_max=1e+1
         loss_type (str): l2, logistic, poisson
         max_iter (int): max num of dual ascent steps
         h_tol (float): exit if |h(w_est)| <= htol
-        rho_max (float): exit if rho >= rho_max
+        rho_max (float): exit if rho >= rho_max; penalty parameter of augmented lagragian
         w_threshold (float): drop edge if |weight| < threshold
 
     Returns:
@@ -22,9 +22,13 @@ def notears_linear(X, lambda1, loss_type, max_iter=100, h_tol=1e-8, rho_max=1e+1
     def _loss(W):
         """Evaluate value and gradient of loss."""
         M = X @ W
+        # X.shape[0] = n
+
         if loss_type == 'l2':
+            # the one in the paper
             R = X - M
             loss = 0.5 / X.shape[0] * (R ** 2).sum()
+            # gradient
             G_loss = - 1.0 / X.shape[0] * X.T @ R
         elif loss_type == 'logistic':
             loss = 1.0 / X.shape[0] * (np.logaddexp(0, M) - X * M).sum()
@@ -87,7 +91,8 @@ def notears_linear(X, lambda1, loss_type, max_iter=100, h_tol=1e-8, rho_max=1e+1
 
 
 if __name__ == '__main__':
-    from notears import utils
+    import utils
+    # from NOTEARS import utils
     utils.set_random_seed(1)
 
     n, d, s0, graph_type, sem_type = 100, 20, 20, 'ER', 'gauss'
